@@ -1,0 +1,62 @@
+2025-08-01 23:33:06,891 - INFO - Starting automated analysis for AAPL
+2025-08-01 23:33:06,892 - INFO - Fetching data for AAPL...
+2025-08-01 23:33:07,182 - INFO - Current price: $202.38
+2025-08-01 23:33:07,899 - ERROR - Failed to send email: (534, b'5.7.9 Application-specific password required. For more information, go to\n5.7.9  https://support.google.com/mail/?p=InvalidSecondFactor d75a77b69052e-4aeeebde8c0sm28039391cf.2 - gsmtp')
+2025-08-01 23:33:07,900 - INFO - Analysis completed successfully for AAPL
+2025-08-01 23:34:46,229 - INFO - Automated analyzer stopped by user
+2025-08-01 23:49:06,334 - ERROR - Unsupported carrier: t-mobile
+2025-08-01 23:49:23,742 - INFO - Starting automated analysis for AAPL
+2025-08-01 23:49:23,742 - INFO - Fetching data for AAPL...
+2025-08-01 23:49:24,043 - INFO - Current price: $202.38
+2025-08-01 23:49:24,415 - ERROR - Unsupported carrier: t-mobile
+2025-08-01 23:49:24,415 - INFO - Analysis completed successfully for AAPL
+2025-08-01 23:51:26,511 - INFO - Automated analyzer stopped by user
+2025-08-02 00:04:22,461 - INFO - Starting automated analysis for AAPL
+2025-08-02 00:04:22,461 - INFO - Fetching data for AAPL...
+2025-08-02 00:04:22,728 - INFO - Current price: $202.38
+2025-08-02 00:04:23,110 - INFO - ntfy notification sent successfully to topic: options_price
+2025-08-02 00:04:23,110 - INFO - Analysis completed successfully for AAPL
+2025-08-02 00:06:28,111 - INFO - Starting automated analysis for AAPL
+2025-08-02 00:06:28,111 - INFO - Fetching data for AAPL...
+2025-08-02 00:06:28,363 - INFO - Current price: $202.38
+2025-08-02 00:06:28,787 - INFO - ntfy notification sent successfully to topic: options_price
+2025-08-02 00:06:28,787 - INFO - Analysis completed successfully for AAPL
+2025-08-02 00:08:57,850 - INFO - Starting automated analysis for AAPL
+2025-08-02 00:08:57,851 - INFO - Fetching data for AAPL...
+2025-08-02 00:08:58,151 - INFO - Current price: $202.38
+2025-08-02 00:08:58,547 - INFO - ntfy notification sent successfully to topic: options_price
+2025-08-02 00:08:58,548 - INFO - Analysis completed successfully for AAPL
+2025-08-02 01:14:35,639 - INFO - Starting automated analysis for AAPL
+2025-08-02 01:14:35,642 - INFO - Fetching data for AAPL...
+2025-08-02 01:14:35,861 - INFO - Current price: $202.38
+2025-08-02 01:14:36,264 - INFO - ntfy notification sent successfully to topic: options_price
+2025-08-02 01:14:36,264 - INFO - Analysis completed successfully for AAPL
+2025-08-02 02:15:54,920 - INFO - Starting automated analysis for AAPL
+2025-08-02 02:15:54,923 - INFO - Fetching data for AAPL...
+2025-08-02 02:15:55,104 - INFO - Current price: $202.38
+2025-08-02 02:15:55,678 - INFO - ntfy notification sent successfully to topic: options_price
+2025-08-02 02:15:55,679 - INFO - Analysis completed successfully for AAPL
+2025-08-02 03:17:06,447 - INFO - Starting automated analysis for AAPL
+2025-08-02 03:17:06,449 - INFO - Fetching data for AAPL...
+2025-08-02 03:17:06,633 - INFO - Current price: $202.38
+2025-08-02 03:17:07,097 - INFO - ntfy notification sent successfully to topic: options_price
+2025-08-02 03:17:07,098 - INFO - Analysis completed successfully for AAPL
+2025-08-02 04:18:18,003 - INFO - Starting automated analysis for AAPL
+2025-08-02 04:18:18,006 - INFO - Fetching data for AAPL...
+2025-08-02 04:18:18,176 - INFO - Current price: $202.38
+2025-08-02 04:18:18,609 - INFO - ntfy notification sent successfully to topic: options_price
+2025-08-02 04:18:18,610 - INFO - Analysis completed successfully for AAPL
+2025-08-02 05:19:15,332 - INFO - Starting automated analysis for AAPL
+2025-08-02 05:19:15,333 - INFO - Fetching data for AAPL...
+2025-08-02 05:19:15,512 - INFO - Current price: $202.38
+2025-08-02 05:19:15,956 - INFO - ntfy notification sent successfully to topic: options_price
+2025-08-02 05:19:15,957 - INFO - Analysis completed successfully for AAPL
+2025-08-02 06:20:27,068 - INFO - Starting automated analysis for AAPL
+2025-08-02 06:20:27,072 - INFO - Fetching data for AAPL...
+2025-08-02 06:20:27,305 - INFO - Current price: $202.38
+2025-08-02 06:36:04,299 - ERROR - Error in automated analysis: Failed to perform, curl: (28) Operation timed out after 937002 milliseconds with 0 bytes received. See https://curl.se/libcurl/c/libcurl-errors.html first for more details.
+2025-08-02 08:22:11,200 - INFO - Starting automated analysis for AAPL
+2025-08-02 08:22:11,204 - INFO - Fetching data for AAPL...
+2025-08-02 08:22:11,384 - INFO - Current price: $202.38
+2025-08-02 08:22:11,823 - INFO - ntfy notification sent successfully to topic: options_price
+2025-08-02 08:22:11,824 - INFO - Analysis completed successfully for AAPL
