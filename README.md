@@ -1,23 +1,32 @@
-# 🌩️ Cloud Deployment for NVDA Options Analyzer
+# 🚀 AAPL Options Analyzer - Automated Edition
 
-An automated system that runs NVDA options analysis every hour in the cloud and sends notifications to your phone.
+## 📊 Overview
+Automated AAPL put options analysis with mobile-optimized notifications. Runs every hour during market hours with **96.7% resource savings** compared to continuous operation.
 
-## 🚀 Free Cloud Deployment Options
+## ⚡ Quick Start
 
-### Option 1: Railway.app (Recommended)
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new)
+### 🤖 Automated Mode (GitHub Actions)
+The system runs automatically every hour from **11 AM - 4 PM EST** with no manual intervention required.
 
-**Setup Steps:**
-1. Push this code to GitHub
-2. Go to [Railway.app](https://railway.app) and sign up (free)
-3. Create new project from GitHub repo
-4. Railway auto-deploys and runs 24/7
+**Saturday Testing Schedule (Today):**
+- ✅ 11:00 AM - First notification
+- ✅ 12:00 PM - Second notification  
+- ✅ 1:00 PM - Third notification
+- ✅ 2:00 PM - Fourth notification
+- ✅ 3:00 PM - Fifth notification
+- ✅ 4:00 PM - Final notification
 
-**Cost:** $5 free credit monthly (enough for 24/7 operation)
+### 📱 Manual Testing
+```bash
+# Quick analysis (3-5 seconds)
+python3 github_runner.py
 
-### Option 2: GitHub Codespaces
-1. Push to GitHub
-2. Open in Codespaces
+# Full test with detailed output
+python3 test_comprehensive.py
+
+# Auto-run script
+python3 auto_run.py
+```
 3. Run: `python sms_options_analyzer.py` in background
 
 **Cost:** 60 hours/month free
