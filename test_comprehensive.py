@@ -8,7 +8,14 @@ import sys
 import logging
 import requests
 import time
-from datetime import datetime
+from datetime        if best_choice_section.strip():
+            # Add a nice header and footer for the notification
+            top_text = "🚨 URGENT OPTIONS ALERT 🚨\n\n"
+            top_text += best_choice_section.strip()
+            top_text += "\n\n💡 This is the TOP recommendation across all timeframes!"
+            top_text += "\n📊 Full detailed analysis follows below..."
+            
+            return top_textdatetime
 
 # Add current directory to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -25,9 +32,15 @@ def setup_logging():
     )
     return logging.getLogger(__name__)
 
-def send_comprehensive_notification(report, topic):
+def send_comprehensive_notification(stock_reports, topic):
     """Send comprehensive report via ntfy with top recommendations first"""
     try:
+        # Create a combined report from all stocks for the detailed analysis
+        combined_report = ""
+        for symbol in ['AAPL', 'NVDA', 'GOOG', 'GOOGL']:
+            if symbol in stock_reports:
+                combined_report += stock_reports[symbol] + "\n\n" + "="*50 + "\n\n"
+        
         # First, clear old notifications by sending a clearing message
         clear_url = f"https://ntfy.sh/{topic}"
         clear_headers = {
@@ -42,16 +55,16 @@ def send_comprehensive_notification(report, topic):
         time.sleep(1)  # Brief pause
         
         # Parse report to extract top recommendations
-        top_recommendations = extract_top_recommendations(report)
+        top_recommendations = extract_top_recommendations(stock_reports)
         
-        # Send top 2 recommendations first (in green)
+        # Send top recommendation first (in red for urgency)
         if top_recommendations:
             top_url = f"https://ntfy.sh/{topic}"
             top_headers = {
-                'Title': 'TOP 2 RECOMMENDATIONS (TEST)',
-                'Priority': 'high',
-                'Tags': 'green_circle,money_with_wings,chart_with_upwards_trend',
-                'Replace': 'top-recommendations-test',
+                'Title': '🥇 ABSOLUTE BEST CHOICE (TEST)',
+                'Priority': 'urgent',
+                'Tags': 'red_circle,money_with_wings,chart_with_upwards_trend,fire',
+                'Replace': 'absolute-best-choice-test',
                 'Content-Type': 'text/plain; charset=utf-8'
             }
             
@@ -65,7 +78,7 @@ def send_comprehensive_notification(report, topic):
         # Split detailed report into chunks if needed
         max_length = 3800  # Leave room for headers
         
-        if len(report) <= max_length:
+        if len(combined_report) <= max_length:
             # Send as single message
             url = f"https://ntfy.sh/{topic}"
             headers = {
@@ -76,12 +89,12 @@ def send_comprehensive_notification(report, topic):
                 'Content-Type': 'text/plain; charset=utf-8'
             }
             
-            response = requests.post(url, data=report.encode('utf-8'), headers=headers, timeout=30)
+            response = requests.post(url, data=combined_report.encode('utf-8'), headers=headers, timeout=30)
             return response.status_code == 200
         else:
             # Split into multiple parts
             parts = []
-            lines = report.split('\n')
+            lines = combined_report.split('\n')
             current_part = ""
             
             for line in lines:
@@ -127,65 +140,38 @@ def send_comprehensive_notification(report, topic):
         logging.error(f"Failed to send comprehensive notification: {e}")
         return False
 
-def extract_top_recommendations(report):
-    """Extract top 2 recommendations from the comprehensive report"""
+def extract_top_recommendations(stock_reports):
+    """Extract the ABSOLUTE BEST CHOICE section from the comprehensive report"""
     try:
+        # Get the AAPL report as it's the main focus
+        if 'AAPL' not in stock_reports:
+            return None
+            
+        report = stock_reports['AAPL']
         lines = report.split('\n')
-        recommendations = []
-        current_rec = ""
-        in_final_section = False
+        best_choice_section = ""
+        in_best_choice = False
         
-        # Look for the final recommendations section
+        # Look for the ABSOLUTE BEST CHOICE section
         for i, line in enumerate(lines):
-            if 'FINAL RECOMMENDATIONS' in line.upper() or 'TOP RECOMMENDATIONS' in line.upper():
-                in_final_section = True
+            if '⭐ === ABSOLUTE BEST CHOICE === ⭐' in line:
+                in_best_choice = True
+                best_choice_section = line + '\n'
                 continue
             
-            if in_final_section:
-                # Look for numbered recommendations with emojis
-                if line.strip().startswith(('🥇 #1', '🥈 #2', '📊 #1', '📊 #2')):
-                    current_rec = line + '\n'
-                    # Collect the next few lines that belong to this recommendation
-                    for j in range(i+1, min(i+8, len(lines))):
-                        if lines[j].strip() and not lines[j].strip().startswith(('🥇', '🥈', '🥉', '📊')):
-                            current_rec += lines[j] + '\n'
-                        elif lines[j].strip().startswith(('🥇', '🥈', '🥉', '📊')):
-                            break
-                        elif not lines[j].strip():
-                            current_rec += '\n'
-                            break
-                    
-                    if current_rec.strip():
-                        recommendations.append(current_rec.strip())
-                        current_rec = ""
-                        
-                    if len(recommendations) >= 2:
-                        break
+            if in_best_choice:
+                # Continue collecting lines until we hit the next major section
+                if line.strip().startswith('🏆 === WEEKLY BEST PICKS'):
+                    break
+                else:
+                    best_choice_section += line + '\n'
         
-        # If we didn't find recommendations in final section, try simpler approach
-        if len(recommendations) < 2:
-            recommendations = []
-            for line in lines:
-                # Look for lines with AAPL and good indicators
-                if 'AAPL' in line.upper():
-                    if any(indicator in line.lower() for indicator in ['🟢', 'excellent', 'best', 'winner', '🥇', '🥈']):
-                        if '$' in line:  # Must have price info
-                            recommendations.append(line.strip())
-                            if len(recommendations) >= 2:
-                                break
-        
-        if recommendations:
-            top_text = "🟢 TOP 2 RECOMMENDATIONS:\n\n"
-            for i, rec in enumerate(recommendations[:2], 1):
-                # Clean up the recommendation text
-                clean_rec = rec.replace('🥇', '').replace('🥈', '').replace('📊', '').strip()
-                if clean_rec.startswith('#'):
-                    clean_rec = clean_rec[2:].strip()  # Remove "# " numbering
-                
-                top_text += f"🏆 #{i} {clean_rec}\n\n"
-            
-            top_text += "💡 These are the highest Premium/Risk ratio plays with best probability!\n"
-            top_text += "📊 Full detailed analysis follows below..."
+        if best_choice_section.strip():
+            # Add a nice header and footer for the notification
+            top_text = "� URGENT OPTIONS ALERT 🚨\n\n"
+            top_text += best_choice_section.strip()
+            top_text += "\n\n💡 This is the TOP recommendation across all timeframes!"
+            top_text += "\n📊 Full detailed analysis follows below..."
             
             return top_text
         

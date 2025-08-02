@@ -1,11 +1,13 @@
-name: 🚀 AAPL Options Analyzer - Hourly Automated
+name: 🚀 Multi-Stock Options Analyzer - Hourly Automated
 
 on:
   schedule:
-    # Run every hour from 11 AM to 4 PM EST (15:00 to 20:00 UTC)
-    # Saturday testing: runs every hour for 7 hours total
-    - cron: '0 15-20 * * 6'  # Saturday only (for testing)
-    - cron: '0 14-21 * * 1-5'  # Monday-Friday 9 AM - 4 PM EST (13:00-21:00 UTC)
+    # Extended Saturday testing for 8-2-25 ONLY: 11 AM to 8 PM EST (15:00 to 24:00 UTC)
+    - cron: '0 15-23 2 8 6'  # August 2nd, 2025 Saturday only (special extended hours)
+    # Regular Saturday testing: runs 11 AM to 4 PM EST (15:00 to 20:00 UTC)
+    - cron: '0 15-20 * * 6'  # All other Saturdays (for future testing)
+    # Monday-Friday: 9 AM - 4 PM EST (13:00-21:00 UTC)
+    - cron: '0 14-21 * * 1-5'  # Monday-Friday regular hours
   
   # Allow manual trigger for testing
   workflow_dispatch:
@@ -18,7 +20,7 @@ on:
 jobs:
   options-analysis:
     runs-on: ubuntu-latest
-    timeout-minutes: 3  # Hard limit: 3 minutes max per run
+    timeout-minutes: 15  # Extended for multi-stock analysis with 3-min delays
     
     steps:
     - name: 📥 Checkout Repository
@@ -40,13 +42,15 @@ jobs:
         echo "🕐 UTC Time: $(date -u)"
         echo "🕐 EST Time: $(TZ='America/New_York' date)"
         echo "📅 Day of week: $(date +%A)"
+        echo "🎯 Special: Extended hours for 8-2-25 testing (until 8 PM EST)"
         
-    - name: 🚀 Run AAPL Options Analysis (2 min max)
-      timeout-minutes: 2
+    - name: 🚀 Run Multi-Stock Options Analysis (15 min max)
+      timeout-minutes: 15
       run: |
-        echo "🚀 Starting 2-minute AAPL analysis burst..."
-        echo "💰 Resource optimization: 2 min/hour = 14 min/day total"
-        echo "📊 Target: AAPL put options with mobile notifications"
+        echo "🚀 Starting 15-minute multi-stock analysis..."
+        echo "� Analyzing: AAPL, NVDA, GOOG, GOOGL"
+        echo "⏱️ Notifications: 3 minutes apart per stock"
+        echo "� Total time: ~12 minutes (analysis + notifications)"
         
         # Create config for notifications
         cat > config.py << 'EOF'

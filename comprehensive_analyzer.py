@@ -18,8 +18,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 class ComprehensiveOptionsAnalyzer:
     def __init__(self):
-        # Focus on AAPL only for now
-        self.symbols = ['AAPL']
+        # Analyze multiple stocks
+        self.symbols = ['AAPL', 'NVDA', 'GOOG', 'GOOGL']
         self.current_prices = {}
         self.risk_free_rate = 0.05  # 5% risk-free rate
         
@@ -186,16 +186,51 @@ class ComprehensiveOptionsAnalyzer:
         if not options_data:
             return f"❌ Week {week_num} ({expiration_date}): No data\n\n"
         
-        # Sort by strike price and filter good options only
-        options_data.sort(key=lambda x: x['strike'], reverse=True)
+        # Sort by premium (highest first) and filter good options
+        options_data.sort(key=lambda x: x['premium'], reverse=True)
         good_options = [opt for opt in options_data if opt['premium_risk_ratio'] >= 5]
         
         analysis = f"📅 === WEEK {week_num} - {expiration_date} ===\n"
-        analysis += f"💰 Current: ${current_price:.2f}\n\n"
+        analysis += f"💰 Current: ${current_price:.2f}\n"
+        analysis += f"📊 {symbol} Put Options Analysis\n\n"
         
         if not good_options:
-            analysis += "⚠️  NO PROFITABLE OPTIONS\n\n"
+            analysis += "⚠️  NO PROFITABLE OPTIONS (Premium/Risk < 5.0)\n\n"
+            return analysis
+        
+        # Show the top 10 best options for this week (closer strikes)
+        analysis += f"🏆 TOP {min(10, len(good_options))} BEST OPTIONS:\n\n"
+        
+        for i, option in enumerate(good_options[:10], 1):
+            # Determine quality color
+            if option['premium_risk_ratio'] >= 15:
+                color = "🟢"
+                quality = "EXCELLENT"
+            elif option['premium_risk_ratio'] >= 10:
+                color = "🟡"
+                quality = "GOOD"
+            elif option['premium_risk_ratio'] >= 5:
+                color = "🟠"
+                quality = "FAIR"
+            else:
+                color = "🔴"
+                quality = "RISKY"
             
+            analysis += f"{color} #{i} ${option['strike']:.0f} Strike\n"
+            analysis += f"   💰 Premium: ${option['premium']:.2f} per share\n"
+            analysis += f"   💵 Contract: ${option['contract_value']:.0f} total\n"
+            analysis += f"   ⚠️ Risk: {option['assignment_chance']:.1f}%\n"
+            analysis += f"   📊 P/R Ratio: {option['premium_risk_ratio']:.1f} ({quality})\n"
+            analysis += f"   ⏰ Decay: ${option['daily_decay']:.3f}/day\n"
+            analysis += f"   📅 Days: {option['days_to_expiry']}\n\n"
+        
+        # Summary stats
+        best_option = good_options[0]
+        analysis += f"💡 BEST PICK: ${best_option['strike']:.0f} strike\n"
+        analysis += f"   💰 Profit: ${best_option['premium']:.2f}/share = ${best_option['contract_value']:.0f}\n"
+        analysis += f"   ⚠️ Risk: {best_option['assignment_chance']:.1f}%\n"
+        analysis += f"   🎯 Quality: {best_option['ratio_explanation']}\n\n"
+        
         return analysis
     
     def analyze_all_stocks(self):
@@ -236,62 +271,70 @@ class ComprehensiveOptionsAnalyzer:
     
     def create_comprehensive_report(self, all_results):
         """Create the comprehensive notification report with detailed weekly analysis"""
-        # Get AAPL current price for the header
-        current_price = all_results.get('AAPL', {}).get('current_price', 0)
+        # This method now returns all stock reports
+        stock_reports = {}
         
-        report = f"🚀 OPTIONS ALERT - AAPL (${current_price:.2f}) 🚀\n"
+        for symbol in ['AAPL', 'NVDA', 'GOOG', 'GOOGL']:
+            if symbol not in all_results:
+                continue
+                
+            stock_reports[symbol] = self.create_single_stock_report(symbol, all_results[symbol], all_results)
+        
+        return stock_reports
+    
+    def create_single_stock_report(self, symbol, stock_data, all_results):
+        """Create report for a single stock"""
+        current_price = stock_data.get('current_price', 0)
+        
+        report = f"🚀 OPTIONS ALERT - {symbol} (${current_price:.2f}) 🚀\n"
         report += f"⏰ Analysis Time: {datetime.now().strftime('%Y-%m-%d %H:%M EST')}\n"
-        report += f"📊 Analyzing: AAPL Put Options\n"
+        report += f"📊 Analyzing: {symbol} Put Options\n"
         report += f"💰 Potential Profit × 100 for actual contract values\n"
         report += f"🎯 Strikes within $15 of current price\n\n"
         
-        # Track best picks for each stock and week
+        # Track best picks for this stock's weeks
         weekly_bests = {}  # {week: [(symbol, premium, details), ...]}
-        stock_summaries = {}  # {symbol: best_overall}
+        stock_summary = None  # best_overall for this stock
         
-        # First pass: collect all weekly best picks
+        # First pass: collect all weekly best picks for this stock
         for week_num in range(1, 5):
             weekly_bests[week_num] = []
             
-            for symbol, data in all_results.items():
-                if 'weekly_analysis' not in data or week_num not in data['weekly_analysis']:
-                    continue
-                    
-                week_data = data['weekly_analysis'][week_num]
-                options = week_data['options']
+            if 'weekly_analysis' not in stock_data or week_num not in stock_data['weekly_analysis']:
+                continue
                 
-                # Find best pick for this week
-                under_20_risk = [opt for opt in options if opt['assignment_chance'] < 20]
-                if under_20_risk:
-                    best = max(under_20_risk, key=lambda x: x['premium'])
-                    best['expiration_date'] = week_data['expiration_date']  # Add expiration date
-                    weekly_bests[week_num].append((symbol, best['premium'], best))
-                    
-                    # Track best for each stock overall
-                    if symbol not in stock_summaries or best['premium'] > stock_summaries[symbol]['premium']:
-                        stock_summaries[symbol] = {
-                            'week': week_num,
-                            'premium': best['premium'],
-                            'details': best,
-                            'expiration_date': week_data['expiration_date']
-                        }
+            week_data = stock_data['weekly_analysis'][week_num]
+            options = week_data['options']
+            
+            # Find best pick for this week
+            under_20_risk = [opt for opt in options if opt['assignment_chance'] < 20]
+            if under_20_risk:
+                best = max(under_20_risk, key=lambda x: x['premium'])
+                best['expiration_date'] = week_data['expiration_date']  # Add expiration date
+                weekly_bests[week_num].append((symbol, best['premium'], best))
+                
+                # Track best for this stock overall
+                if stock_summary is None or best['premium'] > stock_summary['premium']:
+                    stock_summary = {
+                        'week': week_num,
+                        'premium': best['premium'],
+                        'details': best,
+                        'expiration_date': week_data['expiration_date']
+                    }
         
         # ABSOLUTE BEST CHOICE at the very top
-        if stock_summaries:
-            best_symbol = 'AAPL'  # Only AAPL now
-            if best_symbol in stock_summaries:
-                best_data = stock_summaries[best_symbol]
-                details = best_data['details']
-                
-                report += "⭐ === ABSOLUTE BEST CHOICE === ⭐\n"
-                report += f"🥇 {best_symbol} Week {best_data['week']}\n"
-                report += f"📅 Expiration: {best_data['expiration_date']}\n"
-                report += f"💰 Potential profit: ${best_data['premium']:.2f} per share that would be ${details['contract_value']:.0f}\n"
-                report += f"🎯 Strike: ${details['strike']:.0f}\n"
-                report += f"💵 Contract Value: ${details['contract_value']:.0f}\n"
-                report += f"⚠️ Assignment Risk: {details['assignment_chance']:.1f}%\n"
-                report += f"⏰ Daily Time Decay: ${details['daily_decay']:.3f}\n"
-                report += f"🚀 Total Profit Potential: ${details['contract_value']:.0f} per contract\n\n"
+        if stock_summary:
+            details = stock_summary['details']
+            
+            report += "⭐ === ABSOLUTE BEST CHOICE === ⭐\n"
+            report += f"🥇 {symbol} Week {stock_summary['week']}\n"
+            report += f"📅 Expiration: {stock_summary['expiration_date']}\n"
+            report += f"💰 Potential profit: ${stock_summary['premium']:.2f} per share that would be ${details['contract_value']:.0f}\n"
+            report += f"🎯 Strike: ${details['strike']:.0f}\n"
+            report += f"💵 Contract Value: ${details['contract_value']:.0f}\n"
+            report += f"⚠️ Assignment Risk: {details['assignment_chance']:.1f}%\n"
+            report += f"⏰ Daily Time Decay: ${details['daily_decay']:.3f}\n"
+            report += f"🚀 Total Profit Potential: ${details['contract_value']:.0f} per contract\n\n"
         
         # WEEKLY BEST PICKS SUMMARY - Sorted by Quality (Excellent > Good > Fair)
         report += "🏆 === WEEKLY BEST PICKS SUMMARY === 🏆\n\n"
@@ -315,7 +358,7 @@ class ComprehensiveOptionsAnalyzer:
                     quality = "GOOD"
                 elif best_details['premium_risk_ratio'] >= 5:
                     quality_score = 1
-                    color_emoji = "�"
+                    color_emoji = "🟠"
                     quality = "FAIR"
                 else:
                     quality_score = 0
@@ -327,7 +370,7 @@ class ComprehensiveOptionsAnalyzer:
         # Sort by quality (Excellent > Good > Fair), then by premium
         all_weekly_picks.sort(key=lambda x: (x[0], x[3]), reverse=True)
         
-        # Display sorted weekly picks
+        # Display sorted weekly picks for this stock
         for quality_score, week_num, best_symbol, best_premium, best_details, color_emoji, quality in all_weekly_picks:
             report += f"{color_emoji} WEEK {week_num} BEST: {best_symbol}\n"
             report += f"   📅 Expiration: {best_details['expiration_date']}\n"
@@ -342,25 +385,24 @@ class ComprehensiveOptionsAnalyzer:
         # DETAILED ANALYSIS SECTION: Show detailed breakdown for each week
         report += "📊 === DETAILED WEEKLY ANALYSIS === 📊\n\n"
         
-        # Show detailed analysis for each week
+        # Show detailed analysis for each week for this stock
         for week_num in range(1, 5):
             report += f"🗓️ === WEEK {week_num} DETAILED ANALYSIS ===\n\n"
             
-            # Show detailed analysis for AAPL for this week
-            for symbol, data in all_results.items():
-                if 'weekly_analysis' not in data or week_num not in data['weekly_analysis']:
-                    continue
-                    
-                current_price = data['current_price']
-                week_data = data['weekly_analysis'][week_num]
-                expiration_date = week_data['expiration_date']
-                options = week_data['options']
+            if 'weekly_analysis' not in stock_data or week_num not in stock_data['weekly_analysis']:
+                report += f"❌ Week {week_num}: No data available\n\n"
+                continue
                 
-                # Generate detailed weekly analysis for this stock
-                weekly_report = self.format_weekly_analysis(
-                    symbol, current_price, week_num, expiration_date, options
-                )
-                report += weekly_report
+            current_price = stock_data['current_price']
+            week_data = stock_data['weekly_analysis'][week_num]
+            expiration_date = week_data['expiration_date']
+            options = week_data['options']
+            
+            # Generate detailed weekly analysis for this stock
+            weekly_report = self.format_weekly_analysis(
+                symbol, current_price, week_num, expiration_date, options
+            )
+            report += weekly_report
             
             report += "=" * 50 + "\n\n"
         
@@ -374,9 +416,15 @@ def main():
     results = analyzer.analyze_all_stocks()
     
     if results:
-        comprehensive_report = analyzer.create_comprehensive_report(results)
-        print(comprehensive_report)
-        return comprehensive_report
+        comprehensive_reports = analyzer.create_comprehensive_report(results)
+        
+        # Print all stock reports
+        for symbol, report in comprehensive_reports.items():
+            print(f"\n{'='*20} {symbol} REPORT {'='*20}")
+            print(report)
+            print(f"{'='*50}\n")
+        
+        return comprehensive_reports
     else:
         print("❌ No results to display")
         return None

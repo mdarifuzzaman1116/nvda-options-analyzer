@@ -54,12 +54,12 @@ def test_notification():
         print("\n📱 Sending notification to ntfy...")
         
         # Import the notification function
-        from efficient_analyzer import send_comprehensive_notification
+        from efficient_analyzer import send_single_stock_notification
         
         topic = NOTIFICATION_CONFIG['ntfy']['topic']
         print(f"📡 Sending to topic: {topic}")
         
-        success = send_comprehensive_notification(report, topic)
+        success = send_single_stock_notification(report['AAPL'], 'AAPL', topic)
         
         if success:
             print("✅ Notification sent successfully!")
