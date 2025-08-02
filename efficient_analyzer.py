@@ -38,30 +38,9 @@ def setup_logging():
     return logging.getLogger(__name__)
 
 def send_comprehensive_notification(report, topic):
-    """Send comprehensive report via ntfy with top recommendations first"""
+    """Send comprehensive report via ntfy"""
     try:
         import requests
-        
-        # Parse report to extract top recommendations
-        top_recommendations = extract_top_recommendations(report)
-        
-        # Send top 2 recommendations first (in green)
-        if top_recommendations:
-            top_url = f"https://ntfy.sh/{topic}"
-            top_headers = {
-                'Title': 'TOP 2 RECOMMENDATIONS',
-                'Priority': 'high',
-                'Tags': 'green_circle,money_with_wings,chart_with_upwards_trend',
-                'Replace': 'top-recommendations',
-                'Content-Type': 'text/plain; charset=utf-8'
-            }
-            
-            # Ensure proper UTF-8 encoding
-            top_data = top_recommendations.encode('utf-8')
-            response = requests.post(top_url, data=top_data, headers=top_headers, timeout=30)
-            if response.status_code != 200:
-                return False
-            time.sleep(2)  # Pause between top and detailed
         
         # Split detailed report into chunks if needed
         max_length = 3800  # Leave room for headers
@@ -70,10 +49,9 @@ def send_comprehensive_notification(report, topic):
             # Send as single message
             url = f"https://ntfy.sh/{topic}"
             headers = {
-                'Title': 'OPTIONS ALERT - Detailed Analysis',
+                'Title': 'AAPL OPTIONS ALERT',
                 'Priority': 'default',
                 'Tags': 'chart_with_upwards_trend,money_with_wings,bell',
-                'Replace': 'detailed-analysis',
                 'Content-Type': 'text/plain; charset=utf-8'
             }
             
@@ -132,74 +110,6 @@ def send_comprehensive_notification(report, topic):
     except Exception as e:
         logging.error(f"Failed to send comprehensive notification: {e}")
         return False
-
-def extract_top_recommendations(report):
-    """Extract top 2 recommendations from the comprehensive report"""
-    try:
-        lines = report.split('\n')
-        recommendations = []
-        current_rec = ""
-        in_final_section = False
-        
-        # Look for the final recommendations section
-        for i, line in enumerate(lines):
-            if 'FINAL RECOMMENDATIONS' in line.upper() or 'TOP RECOMMENDATIONS' in line.upper():
-                in_final_section = True
-                continue
-            
-            if in_final_section:
-                # Look for numbered recommendations with emojis
-                if line.strip().startswith(('🥇 #1', '🥈 #2', '📊 #1', '📊 #2')):
-                    current_rec = line + '\n'
-                    # Collect the next few lines that belong to this recommendation
-                    for j in range(i+1, min(i+8, len(lines))):
-                        if lines[j].strip() and not lines[j].strip().startswith(('🥇', '🥈', '🥉', '📊')):
-                            current_rec += lines[j] + '\n'
-                        elif lines[j].strip().startswith(('🥇', '🥈', '🥉', '📊')):
-                            break
-                        elif not lines[j].strip():
-                            current_rec += '\n'
-                            break
-                    
-                    if current_rec.strip():
-                        recommendations.append(current_rec.strip())
-                        current_rec = ""
-                        
-                    if len(recommendations) >= 2:
-                        break
-        
-        # If we didn't find recommendations in final section, try simpler approach
-        if len(recommendations) < 2:
-            recommendations = []
-            for line in lines:
-                # Look for lines with AAPL and good indicators
-                if 'AAPL' in line.upper():
-                    if any(indicator in line.lower() for indicator in ['🟢', 'excellent', 'best', 'winner', '🥇', '🥈']):
-                        if '$' in line:  # Must have price info
-                            recommendations.append(line.strip())
-                            if len(recommendations) >= 2:
-                                break
-        
-        if recommendations:
-            top_text = "🟢 TOP 2 RECOMMENDATIONS:\n\n"
-            for i, rec in enumerate(recommendations[:2], 1):
-                # Clean up the recommendation text
-                clean_rec = rec.replace('🥇', '').replace('🥈', '').replace('📊', '').strip()
-                if clean_rec.startswith('#'):
-                    clean_rec = clean_rec[2:].strip()  # Remove "# " numbering
-                
-                top_text += f"🏆 #{i} {clean_rec}\n\n"
-            
-            top_text += "💡 These are the highest Premium/Risk ratio plays with best probability!\n"
-            top_text += "📊 Full detailed analysis follows below..."
-            
-            return top_text
-        
-        return None
-        
-    except Exception as e:
-        logging.error(f"Error extracting top recommendations: {e}")
-        return None
 
 def is_market_hours():
     """Check if current time is during market hours (9 AM - 4 PM EST, Monday-Friday)"""
