@@ -1,0 +1,75 @@
+name: 🚀 AAPL Options Analyzer - Hourly Automated
+
+on:
+  schedule:
+    # Run every hour from 11 AM to 4 PM EST (15:00 to 20:00 UTC)
+    # Saturday testing: runs every hour for 7 hours total
+    - cron: '0 15-20 * * 6'  # Saturday only (for testing)
+    - cron: '0 14-21 * * 1-5'  # Monday-Friday 9 AM - 4 PM EST (13:00-21:00 UTC)
+  
+  # Allow manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: 'Run in test mode'
+        required: false
+        default: 'true'
+
+jobs:
+  options-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3  # Hard limit: 3 minutes max per run
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🐍 Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        cache: 'pip'
+        
+    - name: 📦 Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: ⏰ Show Current Time
+      run: |
+        echo "🕐 UTC Time: $(date -u)"
+        echo "🕐 EST Time: $(TZ='America/New_York' date)"
+        echo "📅 Day of week: $(date +%A)"
+        
+    - name: 🚀 Run AAPL Options Analysis (2 min max)
+      timeout-minutes: 2
+      run: |
+        echo "🚀 Starting 2-minute AAPL analysis burst..."
+        echo "💰 Resource optimization: 2 min/hour = 14 min/day total"
+        echo "📊 Target: AAPL put options with mobile notifications"
+        
+        # Create config for notifications
+        cat > config.py << 'EOF'
+        NOTIFICATION_CONFIG = {
+            'ntfy': {
+                'enabled': True,
+                'topic': 'options_price',
+                'base_url': 'https://ntfy.sh'
+            }
+        }
+        EOF
+        
+        # Run the optimized GitHub Actions runner
+        python3 github_runner.py
+        
+    - name: 📊 Resource Usage Summary
+      if: always()
+      run: |
+        echo "📊 === RESOURCE USAGE SUMMARY ==="
+        echo "⏰ Runtime: ~2 minutes (maximum)"
+        echo "🔄 Frequency: Every hour during market hours"
+        echo "📅 Daily usage: ~14 minutes (7 runs × 2 min)"
+        echo "📈 Monthly projection: ~7 hours (vs 210 hours continuous)"
+        echo "💰 Resource savings: 96.7% efficiency gain"
+        echo "🎯 Next run: In 1 hour"
+        echo "=================================="

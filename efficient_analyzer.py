@@ -22,8 +22,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from sms_options_analyzer import AutomatedOptionsAnalyzer
 from comprehensive_analyzer import ComprehensiveOptionsAnalyzer
 
-# Testing mode flag
-TESTING_MODE = True  # Set to False for production (will honor market hours)
+# Testing mode flag - GitHub Actions will always run regardless of day/time
+TESTING_MODE = True  # GitHub Actions handles scheduling, so always run when triggered
 
 def setup_logging():
     """Setup logging for efficient analyzer"""
