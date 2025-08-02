@@ -60,3 +60,28 @@
 2025-08-02 08:22:11,384 - INFO - Current price: $202.38
 2025-08-02 08:22:11,823 - INFO - ntfy notification sent successfully to topic: options_price
 2025-08-02 08:22:11,824 - INFO - Analysis completed successfully for AAPL
+2025-08-02 08:51:37,656 - INFO - 🧪 TESTING MODE ENABLED - Will run on weekends
+2025-08-02 08:51:37,657 - INFO - 🔧 Remember to set TESTING_MODE = False for production
+2025-08-02 08:51:37,657 - INFO - ⚡ Starting Efficient NVDA Options Analyzer
+2025-08-02 08:51:37,657 - INFO - ⏰ Schedule: 2 minutes every hour (14 min/day total)
+2025-08-02 08:51:37,657 - INFO - 💰 Resource savings: 97% less usage vs continuous running
+2025-08-02 08:51:37,657 - INFO - 📊 Monthly usage: ~7 hours (vs 210 hours continuous)
+2025-08-02 08:51:37,658 - INFO - ✅ Configuration loaded successfully
+2025-08-02 08:51:37,658 - INFO - 🎯 Running initial analysis...
+2025-08-02 08:51:37,658 - INFO - 🧪 TESTING MODE: Ignoring market hours (works on weekends)
+2025-08-02 08:51:37,659 - INFO - 🚀 Starting 2-minute NVDA analysis burst...
+2025-08-02 08:51:37,659 - INFO - Starting single analysis for AAPL
+2025-08-02 08:51:37,659 - ERROR - 💥 Error during analysis: 'AutomatedOptionsAnalyzer' object has no attribute 'run_analysis'
+2025-08-02 08:51:38,662 - INFO - 🏁 Analysis session completed in 1.0 seconds
+2025-08-02 08:51:38,662 - INFO - 💤 Entering sleep mode until next hour...
+2025-08-02 08:51:38,687 - INFO - 💤 Sleeping until 09:00:00 EST (8.4 minutes)
+2025-08-02 08:52:00,115 - INFO - 🧪 TESTING MODE: Ignoring market hours (works on weekends)
+2025-08-02 08:53:37,661 - INFO - ⏱️ 2-minute timeout reached - stopping analysis
+2025-08-02 09:00:00,091 - INFO - 🧪 TESTING MODE: Ignoring market hours (works on weekends)
+2025-08-02 09:00:00,097 - INFO - 🚀 Starting 2-minute NVDA analysis burst...
+2025-08-02 09:00:00,098 - INFO - Starting single analysis for AAPL
+2025-08-02 09:00:00,099 - ERROR - 💥 Error during analysis: 'AutomatedOptionsAnalyzer' object has no attribute 'run_analysis'
+2025-08-02 09:00:00,099 - INFO - 🏁 Analysis session completed in 0.0 seconds
+2025-08-02 09:00:00,099 - INFO - 💤 Entering sleep mode until next hour...
+2025-08-02 09:00:00,100 - INFO - 💤 Sleeping until 09:00:00 EST (60.0 minutes)
+2025-08-02 09:02:00,103 - INFO - ⏱️ 2-minute timeout reached - stopping analysis

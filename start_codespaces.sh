@@ -1,10 +1,11 @@
 #!/bin/bash
-# GitHub Codespaces Market Hours Analyzer
+# GitHub Codespaces Efficient Options Analyzer
 
-echo "🏦 Starting Market Hours NVDA Options Analyzer for Codespaces"
-echo "📅 Will run Monday-Friday, 9 AM - 4 PM EST only"
-echo "⏰ Analyzes every hour during market hours"
-echo "💰 Optimized for 60 free hours/month"
+echo "⚡ Starting Efficient NVDA Options Analyzer for Codespaces"
+echo "⏰ Runs 2 minutes every hour then stops (14 min/day total)"
+echo "💰 97% resource savings vs continuous running"
+echo "📊 Monthly usage: ~7 hours (vs 210 hours continuous)"
+echo "🧪 Testing mode enabled for weekend testing"
 echo ""
 
 # Install dependencies
@@ -12,9 +13,10 @@ echo "📦 Installing dependencies..."
 pip install -r requirements.txt
 
 echo ""
-echo "🚀 Starting market hours analyzer..."
+echo "🚀 Starting efficient analyzer..."
 echo "📱 Make sure you have ntfy app installed and subscribed to 'options_price'"
+echo "⏱️ Each analysis runs for max 2 minutes then sleeps until next hour"
 echo ""
 
-# Start the market hours analyzer
-python market_hours_analyzer.py
+# Start the efficient analyzer
+python efficient_analyzer.py
