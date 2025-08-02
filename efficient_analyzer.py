@@ -42,19 +42,6 @@ def send_comprehensive_notification(report, topic):
     try:
         import requests
         
-        # First, clear old notifications by sending a clearing message
-        clear_url = f"https://ntfy.sh/{topic}"
-        clear_headers = {
-            'Title': 'Clearing Previous Notifications...',
-            'Priority': 'min',
-            'Tags': 'wastebasket',
-            'Replace': 'clear-old-notifications',
-            'Content-Type': 'text/plain; charset=utf-8'
-        }
-        clear_data = "Updating with latest analysis..."
-        requests.post(clear_url, data=clear_data.encode('utf-8'), headers=clear_headers, timeout=10)
-        time.sleep(1)  # Brief pause
-        
         # Parse report to extract top recommendations
         top_recommendations = extract_top_recommendations(report)
         

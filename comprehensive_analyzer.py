@@ -195,87 +195,7 @@ class ComprehensiveOptionsAnalyzer:
         
         if not good_options:
             analysis += "⚠️  NO PROFITABLE OPTIONS\n\n"
-            return analysis
-        
-        # Clean format for mobile notifications
-        analysis += "🟢 BUY SIGNALS:\n"
-        for i, opt in enumerate(good_options[:12], 1):
-            # Signal strength indicator
-            if opt['premium_risk_ratio'] >= 15:
-                signal = "🟢 EXCELLENT"
-            elif opt['premium_risk_ratio'] >= 10:
-                signal = "🟡 GOOD"  
-            else:
-                signal = "🟠 FAIR"
             
-            analysis += f"{i}. ${opt['strike']:.0f} → ${opt['premium']:.2f} {signal}\n"
-            analysis += f"   Risk: {opt['assignment_chance']:.1f}% | Contract: ${opt['contract_value']:.0f}\n"
-        
-        # Show best pick
-        under_20_risk = [opt for opt in good_options if opt['assignment_chance'] < 20]
-        if under_20_risk:
-            best = max(under_20_risk, key=lambda x: x['premium'])
-            analysis += f"\n🏆 TOP PICK: ${best['strike']:.0f} @ ${best['premium']:.2f}\n"
-        
-        analysis += "\n"
-        return analysis
-        
-        # Sort by strike price (highest to lowest)
-        options_data.sort(key=lambda x: x['strike'], reverse=True)
-        
-        # Filter to only show good options (premium/risk ratio >= 5)
-        good_options = [opt for opt in options_data if opt['premium_risk_ratio'] >= 5]
-        
-        # Find best pick (highest premium with <20% assignment risk)
-        under_20_risk = [opt for opt in good_options if opt['assignment_chance'] < 20]
-        best_pick = max(under_20_risk, key=lambda x: x['premium']) if under_20_risk else None
-        
-        analysis = f"📊 {symbol} {week_num}-WEEK EXPIRES {expiration_date}\n"
-        analysis += f"💰 Current Price: ${current_price:.2f}\n"
-        analysis += f"� RECOMMENDED OPTIONS TO BUY:\n\n"
-        
-        # Show only good options with detailed information and color coding
-        count = 1
-        for opt in good_options[:10]:  # Limit to top 10 good options
-            otm_distance = current_price - opt['strike']
-            
-            # Color code based on premium/risk ratio (only good ones)
-            if opt['premium_risk_ratio'] >= 15:
-                color_emoji = "🟢"  # Green for excellent
-                risk_level = "EXCELLENT"
-                explanation = "High premium with low risk - BUY!"
-            elif opt['premium_risk_ratio'] >= 10:
-                color_emoji = "🟡"  # Yellow for good
-                risk_level = "GOOD"
-                explanation = "Decent premium for moderate risk - Good buy"
-            else:  # >= 5
-                color_emoji = "🟠"  # Orange for fair
-                risk_level = "FAIR"
-                explanation = "Average premium vs risk - Consider buying"
-            
-            analysis += f"{color_emoji} {count}. STRIKE ${opt['strike']:.0f} (${otm_distance:.0f} below current)\n"
-            analysis += f"   💵 Premium: ${opt['premium']:.2f} | Contract: ${opt['contract_value']:.0f}\n"
-            analysis += f"   ⚠️  Assignment Risk: {opt['assignment_chance']:.1f}%\n"
-            analysis += f"   📊 Premium/Risk Ratio: {opt['premium_risk_ratio']:.1f}\n"
-            analysis += f"   {color_emoji} BUY SIGNAL: {risk_level} - {explanation}\n"
-            analysis += f"   ⏰ Daily Decay: ${opt['daily_decay']:.3f} per day\n\n"
-            count += 1
-        
-        # If no good options found, show a message
-        if not good_options:
-            analysis += "⚠️  NO GOOD OPTIONS FOUND for this week\n"
-            analysis += "💡 Consider waiting for better opportunities\n\n"
-        
-        # Show the best pick for this week
-        if best_pick:
-            analysis += f"🏆 BEST BUY FOR {symbol} {week_num}-WEEK:\n"
-            analysis += f"🎯 Strike ${best_pick['strike']:.0f} Premium ${best_pick['premium']:.2f}\n"
-            analysis += f"Total Contract Value: ${best_pick['contract_value']:.0f}\n"
-            analysis += f"Assignment Risk: {best_pick['assignment_chance']:.1f}%\n"
-            analysis += f"Why This Pick: Best premium (${best_pick['premium']:.2f}) with safe risk (<20%)\n\n"
-        else:
-            analysis += f"BEST PICK FOR {symbol} {week_num}-WEEK: No safe options (<20% risk)\n\n"
-        
         return analysis
     
     def analyze_all_stocks(self):
@@ -322,7 +242,7 @@ class ComprehensiveOptionsAnalyzer:
         report = f"🚀 OPTIONS ALERT - AAPL (${current_price:.2f}) 🚀\n"
         report += f"⏰ Analysis Time: {datetime.now().strftime('%Y-%m-%d %H:%M EST')}\n"
         report += f"📊 Analyzing: AAPL Put Options\n"
-        report += f"💰 Premium × 100 for actual contract values\n"
+        report += f"💰 Potential Profit × 100 for actual contract values\n"
         report += f"🎯 Strikes within $15 of current price\n\n"
         
         # Track best picks for each stock and week
@@ -356,42 +276,7 @@ class ComprehensiveOptionsAnalyzer:
                             'expiration_date': week_data['expiration_date']
                         }
         
-        # TOP SECTION: Show best pick for each week first
-        report += "🏆 === WEEKLY BEST PICKS SUMMARY === 🏆\n\n"
-        
-        for week_num in range(1, 5):
-            if week_num in weekly_bests and weekly_bests[week_num]:
-                # Sort by premium (highest first)
-                week_picks = sorted(weekly_bests[week_num], key=lambda x: x[1], reverse=True)
-                best_symbol, best_premium, best_details = week_picks[0]
-                
-                # Color code based on premium/risk ratio
-                if best_details['premium_risk_ratio'] >= 15:
-                    color_emoji = "🟢"
-                    quality = "EXCELLENT"
-                elif best_details['premium_risk_ratio'] >= 10:
-                    color_emoji = "🟡"
-                    quality = "GOOD"
-                elif best_details['premium_risk_ratio'] >= 5:
-                    color_emoji = "🟠"
-                    quality = "FAIR"
-                else:
-                    color_emoji = "🔴"
-                    quality = "RISKY"
-                
-                report += f"{color_emoji} WEEK {week_num} BEST: {best_symbol}\n"
-                report += f"   📅 Expiration: {best_details['expiration_date']}\n"
-                report += f"   💰 Premium: ${best_premium:.2f} per share\n"
-                report += f"   🎯 Strike: ${best_details['strike']:.0f}\n"
-                report += f"   💵 Contract Value: ${best_details['contract_value']:.0f}\n"
-                report += f"   ⚠️  Assignment Risk: {best_details['assignment_chance']:.1f}%\n"
-                report += f"   ⏰ Daily Time Decay: ${best_details['daily_decay']:.3f}\n"
-                report += f"   📊 Premium/Risk Ratio: {best_details['premium_risk_ratio']:.1f}\n"
-                report += f"   {color_emoji} Quality: {quality}\n\n"
-            else:
-                report += f"🔴 WEEK {week_num}: No suitable options found\n\n"
-        
-        # ABSOLUTE BEST CHOICE at the top
+        # ABSOLUTE BEST CHOICE at the very top
         if stock_summaries:
             best_symbol = 'AAPL'  # Only AAPL now
             if best_symbol in stock_summaries:
@@ -401,13 +286,56 @@ class ComprehensiveOptionsAnalyzer:
                 report += "⭐ === ABSOLUTE BEST CHOICE === ⭐\n"
                 report += f"🥇 {best_symbol} Week {best_data['week']}\n"
                 report += f"📅 Expiration: {best_data['expiration_date']}\n"
-                report += f"💰 Premium: ${best_data['premium']:.2f} per share\n"
+                report += f"💰 Potential profit: ${best_data['premium']:.2f} per share that would be ${details['contract_value']:.0f}\n"
                 report += f"🎯 Strike: ${details['strike']:.0f}\n"
                 report += f"💵 Contract Value: ${details['contract_value']:.0f}\n"
-                report += f"⚠️  Assignment Risk: {details['assignment_chance']:.1f}%\n"
+                report += f"⚠️ Assignment Risk: {details['assignment_chance']:.1f}%\n"
                 report += f"⏰ Daily Time Decay: ${details['daily_decay']:.3f}\n"
-                report += f"📊 Premium/Risk Ratio: {details['premium_risk_ratio']:.1f}\n"
                 report += f"🚀 Total Profit Potential: ${details['contract_value']:.0f} per contract\n\n"
+        
+        # WEEKLY BEST PICKS SUMMARY - Sorted by Quality (Excellent > Good > Fair)
+        report += "🏆 === WEEKLY BEST PICKS SUMMARY === 🏆\n\n"
+        
+        # Collect all weekly picks with quality scores for sorting
+        all_weekly_picks = []
+        for week_num in range(1, 5):
+            if week_num in weekly_bests and weekly_bests[week_num]:
+                # Sort by premium (highest first)
+                week_picks = sorted(weekly_bests[week_num], key=lambda x: x[1], reverse=True)
+                best_symbol, best_premium, best_details = week_picks[0]
+                
+                # Determine quality score for sorting (higher is better)
+                if best_details['premium_risk_ratio'] >= 15:
+                    quality_score = 3
+                    color_emoji = "🟢"
+                    quality = "EXCELLENT"
+                elif best_details['premium_risk_ratio'] >= 10:
+                    quality_score = 2
+                    color_emoji = "🟡"
+                    quality = "GOOD"
+                elif best_details['premium_risk_ratio'] >= 5:
+                    quality_score = 1
+                    color_emoji = "�"
+                    quality = "FAIR"
+                else:
+                    quality_score = 0
+                    color_emoji = "🔴"
+                    quality = "RISKY"
+                
+                all_weekly_picks.append((quality_score, week_num, best_symbol, best_premium, best_details, color_emoji, quality))
+        
+        # Sort by quality (Excellent > Good > Fair), then by premium
+        all_weekly_picks.sort(key=lambda x: (x[0], x[3]), reverse=True)
+        
+        # Display sorted weekly picks
+        for quality_score, week_num, best_symbol, best_premium, best_details, color_emoji, quality in all_weekly_picks:
+            report += f"{color_emoji} WEEK {week_num} BEST: {best_symbol}\n"
+            report += f"   📅 Expiration: {best_details['expiration_date']}\n"
+            report += f"   💰 Potential Profit: ${best_premium:.2f} or ${best_details['contract_value']:.0f}\n"
+            report += f"   🎯 Strike: ${best_details['strike']:.0f}\n"
+            report += f"   ⚠️  Assignment Risk: {best_details['assignment_chance']:.1f}%\n"
+            report += f"   ⏰ Daily Time Decay: ${best_details['daily_decay']:.3f}\n"
+            report += f"   {color_emoji} Quality: {quality}\n\n"
         
         report += "=" * 60 + "\n\n"
         
