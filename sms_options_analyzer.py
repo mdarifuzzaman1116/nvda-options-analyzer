@@ -512,6 +512,11 @@ class AutomatedOptionsAnalyzer:
             logging.error(f"Error in automated analysis: {e}")
             return False
 
+    def run_single_analysis(self):
+        """Run a single analysis without continuous scheduling - for market hours mode"""
+        logging.info(f"Starting single analysis for {self.ticker_symbol}")
+        return self.run_analysis()
+
 
 def load_config():
     """Load configuration from config.py"""
