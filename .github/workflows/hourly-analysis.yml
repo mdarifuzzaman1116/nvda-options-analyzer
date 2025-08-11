@@ -2,12 +2,12 @@ name: 🚀 Multi-Stock Options Analyzer - Hourly Automated
 
 on:
   schedule:
-    # Extended Saturday testing for 8-2-25 ONLY: 11 AM to 8 PM EST (15:00 to 24:00 UTC)
-    - cron: '0 15-23 2 8 6'  # August 2nd, 2025 Saturday only (special extended hours)
-    # Regular Saturday testing: runs 11 AM to 4 PM EST (15:00 to 20:00 UTC)
-    - cron: '0 15-20 * * 6'  # All other Saturdays (for future testing)
-    # Monday-Friday: 9 AM - 4 PM EST (13:00-21:00 UTC)
-    - cron: '0 14-21 * * 1-5'  # Monday-Friday regular hours
+    # Weekend testing: Saturday/Sunday 10 AM - 6 PM EST (14:00 to 22:00 UTC)
+    - cron: '0 14-22 * * 6,0'  # Saturday and Sunday 
+    # Monday-Friday: 9 AM - 4 PM EST (13:00-21:00 UTC) 
+    - cron: '0 13-21 * * 1-5'  # Monday-Friday regular market hours
+    # Extra testing: Every 2 hours for more frequent updates
+    - cron: '0 */2 * * *'  # Every 2 hours daily for testing
   
   # Allow manual trigger for testing
   workflow_dispatch:
@@ -42,7 +42,8 @@ jobs:
         echo "🕐 UTC Time: $(date -u)"
         echo "🕐 EST Time: $(TZ='America/New_York' date)"
         echo "📅 Day of week: $(date +%A)"
-        echo "🎯 Special: Extended hours for 8-2-25 testing (until 8 PM EST)"
+        echo "🎯 UPDATED: Weekend testing 10 AM - 6 PM EST"
+        echo "📊 Weekday testing: 9 AM - 4 PM EST"
         
     - name: 🚀 Run Multi-Stock Options Analysis (15 min max)
       timeout-minutes: 15

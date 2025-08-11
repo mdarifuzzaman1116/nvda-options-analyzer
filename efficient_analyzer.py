@@ -219,13 +219,14 @@ def is_market_hours():
     est = pytz.timezone('US/Eastern')
     now = datetime.now(est)
     
-    # Special case: Extended Saturday testing for 8-2-25 only (until 11:59 PM)
-    if now.date() == datetime(2025, 8, 2).date() and now.weekday() == 5:  # Saturday 8-2-25
-        extended_open = now.replace(hour=20, minute=0, second=0, microsecond=0)  # 8:00 PM
-        extended_close = now.replace(hour=23, minute=59, second=0, microsecond=0)  # 11:59 PM
+    # Special case: Extended weekend testing 
+    if now.weekday() >= 5:  # Saturday (5) or Sunday (6)
+        # Weekend testing: 10 AM - 6 PM EST
+        extended_open = now.replace(hour=10, minute=0, second=0, microsecond=0)
+        extended_close = now.replace(hour=18, minute=0, second=0, microsecond=0)
         if extended_open <= now <= extended_close:
             logger = logging.getLogger(__name__)
-            logger.info("🎯 SPECIAL: Extended Saturday testing (8-2-25) 8:00 PM - 11:59 PM EST")
+            logger.info("🎯 WEEKEND TESTING: Saturday/Sunday 10:00 AM - 6:00 PM EST")
             return True
     
     # Check if it's a weekday (Monday=0, Sunday=6)
