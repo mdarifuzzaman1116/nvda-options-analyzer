@@ -208,34 +208,24 @@ def send_single_stock_notification(report, symbol, topic):
         return False
 
 def is_market_hours():
-    """Check if current time is during market hours (9 AM - 4 PM EST, Monday-Friday)"""
+    """Check if current time is during market hours (9 AM - 5 PM EST, Monday-Friday)"""
     # If testing mode is enabled, always return True
     if TESTING_MODE:
         logger = logging.getLogger(__name__)
-        logger.info("🧪 TESTING MODE: Ignoring market hours (works on weekends)")
+        logger.info("🧪 TESTING MODE: Ignoring market hours (works anytime)")
         return True
     
     # Define EST timezone
     est = pytz.timezone('US/Eastern')
     now = datetime.now(est)
     
-    # Special case: Extended weekend testing 
-    if now.weekday() >= 5:  # Saturday (5) or Sunday (6)
-        # Weekend testing: 10 AM - 6 PM EST
-        extended_open = now.replace(hour=10, minute=0, second=0, microsecond=0)
-        extended_close = now.replace(hour=18, minute=0, second=0, microsecond=0)
-        if extended_open <= now <= extended_close:
-            logger = logging.getLogger(__name__)
-            logger.info("🎯 WEEKEND TESTING: Saturday/Sunday 10:00 AM - 6:00 PM EST")
-            return True
-    
     # Check if it's a weekday (Monday=0, Sunday=6)
     if now.weekday() >= 5:  # Saturday or Sunday
         return False
     
-    # Check if it's between 9 AM and 4 PM EST
+    # Check if it's between 9 AM and 5 PM EST (extended to 5 PM)
     market_open = now.replace(hour=9, minute=0, second=0, microsecond=0)
-    market_close = now.replace(hour=16, minute=0, second=0, microsecond=0)
+    market_close = now.replace(hour=17, minute=0, second=0, microsecond=0)  # 5 PM
     
     return market_open <= now <= market_close
 

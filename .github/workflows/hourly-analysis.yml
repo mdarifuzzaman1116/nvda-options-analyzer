@@ -2,12 +2,10 @@ name: 🚀 Multi-Stock Options Analyzer - Hourly Automated
 
 on:
   schedule:
-    # Weekend testing: Saturday/Sunday 10 AM - 6 PM EST (14:00 to 22:00 UTC)
-    - cron: '0 14-22 * * 6,0'  # Saturday and Sunday 
-    # Monday-Friday: 9 AM - 4 PM EST (13:00-21:00 UTC) 
-    - cron: '0 13-21 * * 1-5'  # Monday-Friday regular market hours
-    # Extra testing: Every 2 hours for more frequent updates
-    - cron: '0 */2 * * *'  # Every 2 hours daily for testing
+    # Monday-Friday: 9 AM - 5 PM EST (13:00-21:00 UTC) 
+    - cron: '0 13-21 * * 1-5'  # Monday-Friday business hours
+    # Extra testing: Every 3 hours for more coverage
+    - cron: '0 */3 * * 1-5'  # Every 3 hours on weekdays
   
   # Allow manual trigger for testing
   workflow_dispatch:
@@ -42,8 +40,8 @@ jobs:
         echo "🕐 UTC Time: $(date -u)"
         echo "🕐 EST Time: $(TZ='America/New_York' date)"
         echo "📅 Day of week: $(date +%A)"
-        echo "🎯 UPDATED: Weekend testing 10 AM - 6 PM EST"
-        echo "📊 Weekday testing: 9 AM - 4 PM EST"
+        echo "🎯 Schedule: Monday-Friday 9 AM - 5 PM EST"
+        echo "📊 Testing every 3 hours on weekdays"
         
     - name: 🚀 Run Multi-Stock Options Analysis (15 min max)
       timeout-minutes: 15
