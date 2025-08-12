@@ -75,14 +75,21 @@ def send_multi_stock_notifications(stock_reports, topic):
         return False
 
 def send_single_stock_notification(report, symbol, topic):
-    """Send optimized notification with ALL 4 WEEKS and TOP 10 STRIKES visible"""
+    """Send optimized notification with ALL 4 WEEKS and TOP 5 STRIKES in aligned table format"""
     try:
         import requests
+        import re
         
         # PREVIEW what we're about to send
         print(f"\n" + "="*80)
         print(f"📱 SENDING {symbol} NOTIFICATION PREVIEW")
         print("="*80)
+        
+        # Extract current stock price from report
+        current_price = 0.0
+        price_match = re.search(rf"{symbol} \(\$(\d+\.\d+)\)", report)
+        if price_match:
+            current_price = float(price_match.group(1))
         
         # Extract ABSOLUTE BEST CHOICE
         absolute_best = ""
@@ -92,16 +99,9 @@ def send_single_stock_notification(report, symbol, topic):
             if end != -1:
                 absolute_best = report[start:end].strip()
         
-        # Extract WEEKLY SUMMARY (only once)
-        weekly_summary = ""
-        if "🏆 === WEEKLY BEST PICKS SUMMARY === 🏆" in report:
-            start = report.find("🏆 === WEEKLY BEST PICKS SUMMARY === 🏆")
-            end = report.find("============================================================", start)
-            if end != -1:
-                weekly_summary = report[start:end].strip()
-        
-        # Create condensed ALL 4 WEEKS detailed analysis
-        condensed_weeks = f"📊 === ALL 4 WEEKS TOP 10 STRIKES === 📊\n"
+        # Create table-formatted ALL 4 WEEKS analysis
+        condensed_weeks = f"📊 === ALL 4 WEEKS TOP 5 STRIKES === 📊\n"
+        condensed_weeks += f"💰 Current {symbol} Price: ${current_price:.2f}\n\n"
         
         # Extract key info for each week
         weeks_data = [
@@ -127,6 +127,9 @@ def send_single_stock_notification(report, symbol, topic):
                 # Extract top 10 strikes with key info
                 condensed_weeks += f"📅 {week_name}\n"
                 
+                # Table header with aligned columns
+                condensed_weeks += "Strike    Below    Premium    Profit     Risk\n"
+                
                 strike_count = 0
                 lines = week_section.split('\n')
                 current_strike = None
@@ -134,7 +137,7 @@ def send_single_stock_notification(report, symbol, topic):
                 current_risk = None
                 
                 for line in lines:
-                    if "Strike" in line and "$" in line and strike_count < 10:  # Show top 10
+                    if "Strike" in line and "$" in line and strike_count < 5:  # Show top 5
                         # Extract strike price
                         strike_start = line.find("$")
                         strike_end = line.find(" ", strike_start)
@@ -153,9 +156,26 @@ def send_single_stock_notification(report, symbol, topic):
                         if risk_end > 6:
                             current_risk = line[risk_start:risk_end]
                             
+                            # Calculate how much below current price
+                            try:
+                                strike_value = float(current_strike.replace("$", ""))
+                                below_current = current_price - strike_value
+                                below_text = f"-${below_current:.2f}" if below_current > 0 else f"+${abs(below_current):.2f}"
+                            except:
+                                below_text = "N/A"
+                            
+                            # Calculate profit value
+                            try:
+                                premium_value = float(current_premium.replace("$", ""))
+                                profit_value = int(premium_value * 100)  # Convert to per contract
+                                profit_text = f"${profit_value}"
+                            except:
+                                profit_text = "N/A"
+                            
                             strike_count += 1
-                            # Use compact format for 10 strikes
-                            condensed_weeks += f"  #{strike_count:2d} {current_strike} • {current_premium} • {current_risk}\n"
+                            
+                            # Use aligned column format (8 chars each column)
+                            condensed_weeks += f"{current_strike:<8} {below_text:<8} {current_premium:<10} {profit_text:<10} {current_risk}\n"
                             
                             # Reset for next strike
                             current_strike = None
@@ -170,11 +190,7 @@ def send_single_stock_notification(report, symbol, topic):
         if absolute_best:
             final_report += f"🚨 URGENT {symbol} ALERT 🚨\n" + absolute_best + "\n\n"
         
-        # Skip weekly summary to save space for 10 strikes per week
-        # if weekly_summary:
-        #     final_report += weekly_summary + "\n\n"
-        
-        # Add detailed ALL 4 WEEKS analysis (10 strikes each)
+        # Add detailed ALL 4 WEEKS table analysis
         final_report += condensed_weeks
         
         # Ensure it fits in one notification - be more aggressive with trimming
@@ -194,7 +210,7 @@ def send_single_stock_notification(report, symbol, topic):
         # Send notification
         url = f"https://ntfy.sh/{topic}"
         headers = {
-            'Title': f'{symbol} TOP 10 STRIKES/WEEK',
+            'Title': f'{symbol} TOP 5 STRIKES/WEEK',
             'Priority': 'urgent',
             'Tags': 'red_circle,fire,chart_with_upwards_trend'
         }
