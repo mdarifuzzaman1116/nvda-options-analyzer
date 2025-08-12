@@ -91,24 +91,17 @@ def send_single_stock_notification(report, symbol, topic):
         if price_match:
             current_price = float(price_match.group(1))
         
-        # Extract ABSOLUTE BEST CHOICE
-        absolute_best = ""
-        if "⭐ === ABSOLUTE BEST CHOICE === ⭐" in report:
-            start = report.find("⭐ === ABSOLUTE BEST CHOICE === ⭐")
-            end = report.find("========================================", start)
-            if end != -1:
-                absolute_best = report[start:end].strip()
-        
-        # Create table-formatted ALL 4 WEEKS analysis
-        condensed_weeks = f"📊 === ALL 4 WEEKS TOP 5 STRIKES === 📊\n"
-        condensed_weeks += f"💰 Current {symbol} Price: ${current_price:.2f}\n\n"
+        # Create clean table-formatted notification with NEW FORMAT ONLY
+        final_report = f"🚨 URGENT {symbol} ALERT 🚨\n"
+        final_report += f"📊 === ALL 4 WEEKS TOP 5 STRIKES === 📊\n"
+        final_report += f"💰 Current {symbol} Price: ${current_price:.2f}\n\n"
         
         # Extract key info for each week
         weeks_data = [
-            ("WEEK 1 - 2025-08-08", "Days: 5"),
-            ("WEEK 2 - 2025-08-15", "Days: 12"), 
-            ("WEEK 3 - 2025-08-22", "Days: 19"),
-            ("WEEK 4 - 2025-08-29", "Days: 26")
+            ("=== WEEK 1 - 2025-08-15 ===", "Days: 3"),
+            ("=== WEEK 2 - 2025-08-22 ===", "Days: 10"), 
+            ("=== WEEK 3 - 2025-08-29 ===", "Days: 17"),
+            ("=== WEEK 4 - 2025-09-05 ===", "Days: 24")
         ]
         
         for week_name, days_info in weeks_data:
@@ -124,11 +117,12 @@ def send_single_stock_notification(report, symbol, topic):
                 
                 week_section = report[week_start:next_week_pos]
                 
-                # Extract top 10 strikes with key info
-                condensed_weeks += f"📅 {week_name}\n"
+                # Extract top 5 strikes with key info
+                week_display = week_name.replace("===", "").strip()
+                final_report += f"📅 {week_display}\n"
                 
                 # Table header with aligned columns
-                condensed_weeks += "Strike    Below    Premium    Profit     Risk\n"
+                final_report += "Strike    Below    Premium    Profit     Risk\n"
                 
                 strike_count = 0
                 lines = week_section.split('\n')
@@ -175,23 +169,14 @@ def send_single_stock_notification(report, symbol, topic):
                             strike_count += 1
                             
                             # Use aligned column format (8 chars each column)
-                            condensed_weeks += f"{current_strike:<8} {below_text:<8} {current_premium:<10} {profit_text:<10} {current_risk}\n"
+                            final_report += f"{current_strike:<8} {below_text:<8} {current_premium:<10} {profit_text:<10} {current_risk}\n"
                             
                             # Reset for next strike
                             current_strike = None
                             current_premium = None
                             current_risk = None
                 
-                condensed_weeks += "\n"
-        
-        # Build final clean notification (no duplicates)
-        final_report = ""
-        
-        if absolute_best:
-            final_report += f"🚨 URGENT {symbol} ALERT 🚨\n" + absolute_best + "\n\n"
-        
-        # Add detailed ALL 4 WEEKS table analysis
-        final_report += condensed_weeks
+                final_report += "\n"
         
         # Ensure it fits in one notification - be more aggressive with trimming
         if len(final_report) > 3900:
