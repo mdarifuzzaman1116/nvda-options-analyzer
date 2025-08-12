@@ -96,15 +96,26 @@ def send_single_stock_notification(report, symbol, topic):
         final_report += f"📊 === ALL 4 WEEKS TOP 5 STRIKES === 📊\n"
         final_report += f"💰 Current {symbol} Price: ${current_price:.2f}\n\n"
         
-        # Extract key info for each week
-        weeks_data = [
-            ("=== WEEK 1 - 2025-08-15 ===", "Days: 3"),
-            ("=== WEEK 2 - 2025-08-22 ===", "Days: 10"), 
-            ("=== WEEK 3 - 2025-08-29 ===", "Days: 17"),
-            ("=== WEEK 4 - 2025-09-05 ===", "Days: 24")
-        ]
+        # DYNAMICALLY extract week headers from the actual report (works for all stocks)
+        weeks_data = []
+        import re
+        week_pattern = r"=== WEEK \d+ - \d{4}-\d{2}-\d{2} ==="
+        week_matches = re.findall(week_pattern, report)
         
-        for week_name, days_info in weeks_data:
+        # Use the actual weeks found in the report
+        for week_header in week_matches:
+            weeks_data.append((week_header, ""))
+        
+        # Fallback if no weeks found - use generic pattern
+        if not weeks_data:
+            weeks_data = [
+                ("=== WEEK 1", ""),
+                ("=== WEEK 2", ""), 
+                ("=== WEEK 3", ""),
+                ("=== WEEK 4", "")
+            ]
+        
+        for week_name, _ in weeks_data:
             if week_name in report:
                 week_start = report.find(week_name)
                 # Find next week or end
