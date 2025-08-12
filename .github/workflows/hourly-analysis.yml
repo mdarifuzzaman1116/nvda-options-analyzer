@@ -2,10 +2,14 @@ name: 🚀 Multi-Stock Options Analyzer - Hourly Automated
 
 on:
   schedule:
-    # Monday-Friday: 9 AM - 5 PM EST (13:00-21:00 UTC) 
-    - cron: '0 13-21 * * 1-5'  # Monday-Friday business hours
-    # Extra testing: Every 3 hours for more coverage
-    - cron: '0 */3 * * 1-5'  # Every 3 hours on weekdays
+    # Monday-Friday: 9 AM - 5 PM EST (13:00-21:00 UTC) - Every 30 minutes for better coverage
+    - cron: '*/30 13-21 * * 1-5'  # Every 30 minutes during business hours
+    # Also run every hour as backup
+    - cron: '0 13-21 * * 1-5'  # Every hour during business hours
+  
+  # Trigger on any push to main branch (for immediate deployment)
+  push:
+    branches: [ main ]
   
   # Allow manual trigger for testing
   workflow_dispatch:
