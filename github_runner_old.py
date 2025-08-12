@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-GitHub Actions Runner for Multi-Stock Options Analysis
-Designed for 15-minute bursts every hour to optimize resource usage
-Analyzes AAPL, NVDA, GOOG, GOOGL with 3-minute delays between notifications
+GitHub Actions Runner for AAPL Options Analysis
+Designed for 2-minute bursts every hour to optimize resource usage
 """
+
 import sys
 import time
 import logging
@@ -19,12 +19,11 @@ def setup_logging():
     return logging.getLogger(__name__)
 
 def run_github_actions_analysis():
-    """Run multi-stock analysis optimized for GitHub Actions environment"""
+    """Run analysis optimized for GitHub Actions environment"""
     logger = setup_logging()
     
-    logger.info("🚀 GitHub Actions Multi-Stock Options Analysis Starting...")
-    logger.info("📊 Analyzing: AAPL, NVDA, GOOG, GOOGL")
-    logger.info("⏰ 15-minute resource-optimized burst with 3-min delays")
+    logger.info("🚀 GitHub Actions AAPL Options Analysis Starting...")
+    logger.info("⏰ 2-minute resource-optimized burst")
     logger.info("💰 Designed for 60-hour monthly limits")
     
     start_time = time.time()
@@ -32,36 +31,33 @@ def run_github_actions_analysis():
     try:
         # Import our analyzer
         from comprehensive_analyzer import ComprehensiveOptionsAnalyzer
-        from efficient_analyzer import send_multi_stock_notifications
         
-        logger.info("📊 Creating multi-stock analyzer...")
+        logger.info("📊 Creating AAPL analyzer...")
         analyzer = ComprehensiveOptionsAnalyzer()
         
-        logger.info("🔍 Fetching all stocks options data...")
+        logger.info("🔍 Fetching AAPL options data...")
         results = analyzer.analyze_all_stocks()
         
         if results:
-            logger.info("📋 Generating comprehensive reports for all stocks...")
-            stock_reports = analyzer.create_comprehensive_report(results)
+            logger.info("📋 Generating comprehensive report...")
+            report = analyzer.create_comprehensive_report(results)
             
-            # Send notifications for each stock (3 minutes apart)
-            logger.info("📤 Sending multi-stock notifications...")
+            # Send notifications
+            logger.info("📤 Sending notifications...")
             try:
                 import config
+                from efficient_analyzer import send_comprehensive_notification
                 
                 if hasattr(config, 'NOTIFICATION_CONFIG'):
                     ntfy_config = config.NOTIFICATION_CONFIG.get('ntfy', {})
                     if ntfy_config.get('enabled', True):
                         topic = ntfy_config.get('topic', 'options_price')
                         
-                        success = send_multi_stock_notifications(stock_reports, topic)
+                        success = send_comprehensive_notification(report, topic)
                         if success:
-                            stocks_analyzed = list(stock_reports.keys())
-                            logger.info("✅ Multi-stock notifications sent successfully!")
-                            logger.info(f"📊 Analyzed: {', '.join(stocks_analyzed)}")
-                            logger.info(f"⏱️ Total notification time: ~{len(stocks_analyzed) * 3} minutes (3 min apart)")
+                            logger.info("✅ Notifications sent successfully!")
                         else:
-                            logger.warning("⚠️ Multi-stock notification sending failed")
+                            logger.warning("⚠️ Notification sending failed")
                 else:
                     logger.warning("⚠️ No notification config found")
                     
@@ -69,8 +65,8 @@ def run_github_actions_analysis():
                 logger.error(f"📤 Notification error: {notify_error}")
             
             duration = time.time() - start_time
-            logger.info(f"🏁 Multi-stock analysis completed in {duration:.1f} seconds")
-            logger.info(f"📊 Reports generated for {len(stock_reports)} stocks")
+            logger.info(f"🏁 Analysis completed in {duration:.1f} seconds")
+            logger.info(f"📊 Report length: {len(report)} characters")
             logger.info("💤 GitHub Action will now terminate to save resources")
             
             return True
@@ -81,7 +77,7 @@ def run_github_actions_analysis():
             
     except Exception as e:
         duration = time.time() - start_time
-        logger.error(f"💥 Multi-stock analysis failed after {duration:.1f} seconds: {e}")
+        logger.error(f"💥 Analysis failed after {duration:.1f} seconds: {e}")
         return False
 
 if __name__ == "__main__":
