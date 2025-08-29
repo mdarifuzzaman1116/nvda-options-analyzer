@@ -220,7 +220,7 @@ def send_single_stock_notification(report, symbol, topic):
         return False
 
 def is_market_hours():
-    """Check if current time is during market hours (9 AM - 5 PM EST, Monday-Friday)"""
+    """Check if current time is during market hours (9:30 AM - 4 PM EST, Monday-Friday)"""
     # If testing mode is enabled, always return True
     if TESTING_MODE:
         logger = logging.getLogger(__name__)
@@ -235,10 +235,9 @@ def is_market_hours():
     if now.weekday() >= 5:  # Saturday or Sunday
         return False
     
-    # Check if it's between 9 AM and 5 PM EST (extended to 5 PM)
-    market_open = now.replace(hour=9, minute=0, second=0, microsecond=0)
-    market_close = now.replace(hour=17, minute=0, second=0, microsecond=0)  # 5 PM
-    
+    # Check if it's between 9:30 AM and 4 PM EST (market hours)
+    market_open = now.replace(hour=9, minute=30, second=0, microsecond=0)
+    market_close = now.replace(hour=16, minute=0, second=0, microsecond=0)  # 4 PM
     return market_open <= now <= market_close
 
 def run_analysis_with_timeout():
